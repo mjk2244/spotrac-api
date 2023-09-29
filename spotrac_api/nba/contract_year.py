@@ -17,56 +17,64 @@ class ContractYear:
         self._pct_of_cap = pct_of_cap
         self._yearly_cash = yearly_cash
         self._guaranteed_money = guaranteed_money
-        
     
+    @property
     def base_salary(self) -> str:
         """
         Returns a player's base salary as a string. E.g. '$5,000,000'
         """
         return self._base_salary
 
+    @property
     def base_salary_int(self) -> int:
         """
         Returns a player's base salary as an ``int``. E.g. 5000000
         """
         return self.dollars_to_int(self._base_salary)
 
+    @property
     def likely_incentives(self) -> str:
         """
         Returns a player's likely incentives as a string. E.g. '$1,000,000'
         """
         return self._likely_incentives
 
+    @property
     def likely_incentives_int(self) -> int:
         """
         Returns a player's likely incentives as an ``int``. E.g. 1000000
         """
         return self.dollars_to_int(self._likely_incentives)
 
+    @property
     def unlikely_incentives(self) -> str:
         """
         Returns a player's unlikely incentives as a string. E.g. '$1,000,000'
         """
         return self._unlikely_incentives
 
+    @property
     def unlikely_incentives_int(self) -> int:
         """
         Returns a player's unlikely incentives as an ``int``. E.g. 1000000
         """
         return self.dollars_to_int(self._unlikely_incentives)
 
+    @property
     def current_year(self) -> bool:
         """
         Returns whether the contract year represents the current year.
         """
         return self._current_year
 
+    @property
     def season(self) -> str:
         """
         Returns the season of the contract year as a string. E.g. '2023-24'
         """
         return self._season
 
+    @property
     def season_tuple(self) -> tuple[int, int]:
         """
         Returns the season of the contract as a tuple. E.g. (2023, 2024)
@@ -78,42 +86,49 @@ class ContractYear:
         else: seasons[1] = century + seasons[1]
         return (int(seasons[0]), int(seasons[1]))
 
+    @property
     def age(self) -> int:
         """
         Returns the player's age during the given contract year as an ``int``.
         """
-        return int(self._age)
+        return self._age
 
+    @property
     def option(self) -> str:
         """
         Returns the type of option, if any, associated with the given contract year.
         """
         return self._option
 
+    @property
     def trade_bonus(self) -> str:
         """
         Returns a player's trade bonus as a string. E.g. '$1,000,000'
         """
         return self._trade_bonus
 
+    @property
     def trade_bonus_int(self) -> int:
         """
         Returns a player's trade bonus as an ``int``. E.g. 1000000
         """
         return self.dollars_to_int(self._trade_bonus)
 
+    @property
     def cap_hit(self) -> str:
         """
         Returns a player's cap hit as a string. E.g. '$1,000,000'
         """
         return self._cap_hit
  
+    @property
     def cap_hit_int(self) -> int:
         """
         Returns a player's cap hit as an ``int``. E.g. 1000000
         """
         return self.dollars_to_int(self._cap_hit)
 
+    @property
     def pct_of_cap(self) -> str:
         """
         Returns the percentage of the salary cap a player's salary takes as a string.
@@ -121,6 +136,7 @@ class ContractYear:
         """
         return self._pct_of_cap
 
+    @property
     def pct_of_cap_decimal(self) -> float:
         """
         Returns the percentage of the salary cap a player's salary takes as a decimal.
@@ -128,24 +144,28 @@ class ContractYear:
         """
         return float(self._pct_of_cap.replace('%','')) / 100
 
+    @property
     def yearly_cash(self) -> str:
         """
         Returns a player's yearly cash as a string. E.g. '$20,000,000'
         """
         return self._yearly_cash
  
+    @property
     def yearly_cash_int(self) -> int:
         """
         Returns a player's yearly cash as an ``int``. E.g. 20000000
         """
         return self.dollars_to_int(self._yearly_cash)
 
+    @property
     def guaranteed_money(self) -> str:
         """
         Returns a player's guaranteed money as a string. E.g. '$20,000,000'
         """
         return self._guaranteed_money
 
+    @property
     def guaranteed_money_int(self) -> int:
         """
         Returns a player's guaranteed money as an ``int``. E.g. 20000000

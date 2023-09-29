@@ -103,30 +103,35 @@ class Contract:
             to_return.append(note.text)
         return to_return
 
+    @property
     def contract_years(self) -> list[ContractYear]:
         """
         Returns a list of ContractYear objects.
         """
         return self._contract_years
     
+    @property
     def summary(self) -> str:
         """
         Returns the contract summary.
         """
         return self._summary
     
+    @property
     def terms(self) -> str:
         """
         Returns the terms of the contract.
         """
         return self._terms
     
+    @property
     def length(self) -> int:
         """
         Returns the number of years in the contract.
         """
         return self._length
     
+    @property
     def years_remaining(self) -> int:
         """
         Returns the number of years left in the contract,
@@ -137,36 +142,42 @@ class Contract:
             i += 1
         return self._length - i
 
+    @property   
     def avg_salary(self) -> str:
         """
         Returns the average salary of a contract as a string
         """
         return self._avg_salary
     
+    @property
     def avg_salary_int(self) -> str:
         """
-        Returns the average salary of a contract as a string.
+        Returns the average salary of a contract as an ``int``.
         """
         return self.dollars_to_int(self._avg_salary)
 
+    @property
     def gtd_at_sign(self) -> str:
         """
         Returns the amount guaranteed at signing as a string.
         """
         return self._gtd_at_sign
     
+    @property
     def gtd_at_sign_int(self) -> int:
         """
-        Returns the amount guaranteed at signing as a string.
+        Returns the amount guaranteed at signing as an ``int``.
         """
         return self.dollars_to_int(self._gtd_at_sign)
     
+    @property
     def signed_using(self) -> int:
         """
         Returns the mechanisms the contract was signed with.
         """
         return self._signed_using
     
+    @property
     def free_agent(self) -> str:
         """
         Returns when the player will be a free agent, as well
@@ -174,6 +185,7 @@ class Contract:
         """
         return self._free_agent
     
+    @property
     def free_agent_tuple(self) -> tuple[int, str]:
         """
         Returns when the player will be a free agent, as well
@@ -182,12 +194,12 @@ class Contract:
         fa = self._free_agent.split(' / ')
         return (int(fa[0]), fa[1])
     
+    @property
     def notes(self) -> list[str]:
         """
         Returns a list of notes associated with the contract.
         """
         return self._notes
-
     
     def dollars_to_int(self, amount: str) -> int:
         """
