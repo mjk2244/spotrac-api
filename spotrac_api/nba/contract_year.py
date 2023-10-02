@@ -21,7 +21,7 @@ class ContractYear:
     @property
     def base_salary(self) -> str:
         """
-        Returns a player's base salary as a string. E.g. '$5,000,000'
+        Returns a player's base salary as a ``string``. E.g. '$5,000,000'
         """
         return self._base_salary
 
@@ -35,7 +35,7 @@ class ContractYear:
     @property
     def likely_incentives(self) -> str:
         """
-        Returns a player's likely incentives as a string. E.g. '$1,000,000'
+        Returns a player's likely incentives as a ``string``. E.g. '$1,000,000'
         """
         return self._likely_incentives
 
@@ -49,7 +49,7 @@ class ContractYear:
     @property
     def unlikely_incentives(self) -> str:
         """
-        Returns a player's unlikely incentives as a string. E.g. '$1,000,000'
+        Returns a player's unlikely incentives as a ``string``. E.g. '$1,000,000'
         """
         return self._unlikely_incentives
 
@@ -70,7 +70,7 @@ class ContractYear:
     @property
     def season(self) -> str:
         """
-        Returns the season of the contract year as a string. E.g. '2023-24'
+        Returns the season of the contract year as a ``string``. E.g. '2023-24'
         """
         return self._season
 
@@ -103,7 +103,7 @@ class ContractYear:
     @property
     def trade_bonus(self) -> str:
         """
-        Returns a player's trade bonus as a string. E.g. '$1,000,000'
+        Returns a player's trade bonus as a ``string``. E.g. '$1,000,000'
         """
         return self._trade_bonus
 
@@ -117,7 +117,7 @@ class ContractYear:
     @property
     def cap_hit(self) -> str:
         """
-        Returns a player's cap hit as a string. E.g. '$1,000,000'
+        Returns a player's cap hit as a ``string``. E.g. '$1,000,000'
         """
         return self._cap_hit
  
@@ -131,7 +131,7 @@ class ContractYear:
     @property
     def pct_of_cap(self) -> str:
         """
-        Returns the percentage of the salary cap a player's salary takes as a string.
+        Returns the percentage of the salary cap a player's salary takes as a ``string``.
         E.g. 29.50%
         """
         return self._pct_of_cap
@@ -147,7 +147,7 @@ class ContractYear:
     @property
     def yearly_cash(self) -> str:
         """
-        Returns a player's yearly cash as a string. E.g. '$20,000,000'
+        Returns a player's yearly cash as a ``string``. E.g. '$20,000,000'
         """
         return self._yearly_cash
  
@@ -161,7 +161,7 @@ class ContractYear:
     @property
     def guaranteed_money(self) -> str:
         """
-        Returns a player's guaranteed money as a string. E.g. '$20,000,000'
+        Returns a player's guaranteed money as a ``string``. E.g. '$20,000,000'
         """
         return self._guaranteed_money
 

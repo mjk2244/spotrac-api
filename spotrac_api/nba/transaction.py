@@ -76,3 +76,9 @@ class Transaction:
         Returns the full date of the transaction formatted as a string. E.g. 'Jul 06 2022'
         """
         return f'{self._month} {self._day} {self._year}'
+
+    def __str__(self) -> str:
+        """
+        String representation of a Transaction object.
+        """
+        return f'{self.full_date}\n{self.notes}'

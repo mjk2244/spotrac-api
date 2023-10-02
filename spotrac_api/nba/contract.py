@@ -145,7 +145,7 @@ class Contract:
     @property   
     def avg_salary(self) -> str:
         """
-        Returns the average salary of a contract as a string
+        Returns the average salary of a contract as a ``string``.
         """
         return self._avg_salary
     
@@ -159,7 +159,7 @@ class Contract:
     @property
     def gtd_at_sign(self) -> str:
         """
-        Returns the amount guaranteed at signing as a string.
+        Returns the amount guaranteed at signing as a ``string``.
         """
         return self._gtd_at_sign
     
@@ -181,7 +181,7 @@ class Contract:
     def free_agent(self) -> str:
         """
         Returns when the player will be a free agent, as well
-        as what kind of free agent, as a string. E.g. '2027 / UFA'
+        as what kind of free agent, as a ``string``. E.g. '2027 / UFA'
         """
         return self._free_agent
     
@@ -203,6 +203,6 @@ class Contract:
     
     def dollars_to_int(self, amount: str) -> int:
         """
-        Converts a dollar amount (string) to an int
+        Converts a dollar amount (``string``) to an int
         """
         return int(amount.replace('$', '').replace(',', ''))
