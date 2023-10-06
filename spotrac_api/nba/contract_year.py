@@ -1,5 +1,3 @@
-
-
 class ContractYear:
 
     def __init__(self, base_salary: str, likely_incentives: str, unlikely_incentives: str,

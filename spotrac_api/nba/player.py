@@ -1,22 +1,22 @@
 from contract import Contract
 from constants import TEAMS, BASE_URL
 import requests
+from requests.exceptions import HTTPError
 from transaction import Transaction
 from bs4 import BeautifulSoup
+from exceptions import InvalidTeamException, InvalidPlayerException, InvalidSeasonException
 
 class Player:
 
-    def __init__(self, team: str, player_id: str):
+    def __init__(self, name: str, team = 'Brooklyn Nets'):
 
         """
         An object containing a player's biographical, contract, and historical transaction data.
 
         Args:
-            team (str): The team the player is on. Can be the team's full name (e.g. 'New Orleans Pelicans)
-            or the team's abbreviation (e.g. 'NOP').
-            player_id (str): Unique identifer found at the end of a player's Spotrac page url.
-            E.g. https://www.spotrac.com/nba/new-orleans-pelicans/zion-williamson-31558/ — the player id
-            would be '31558' or 'zion-williamson-31558' (both are equally valid).
+            team (str): Optional, The team the player is on. Can be the team's full name (e.g. 'New Orleans Pelicans')
+            or the team's abbreviation (e.g. 'NOP'). If a retired player, the team the player was last on.
+            name (str): The full name of the player.
 
         Returns:
             A Player object containing biographical, contract, and historical transaction data
@@ -24,10 +24,10 @@ class Player:
 
         """
 
-        self._url = self.build_url(team, player_id)
+        self._url = self.build_url(team, name)
         self._raw_data = self.fetch_html(self._url)
         self._current = self.parse_current(self._raw_data)
-        self._name = self.parse_name(self._raw_data)
+        self._name = self.parse_name(name, self._raw_data)
         self._position = self.parse_position(self._raw_data)
         self._age = self.parse_age(self._raw_data)
         self._team = TEAMS[team]['full_name']
@@ -35,17 +35,28 @@ class Player:
         self._drafted = self.parse_drafted(self._raw_data)
         self._college = self.parse_college(self._raw_data)
         self._agents = self.parse_agents(self._raw_data)
-        if self._current: self._current_contract = Contract(self._raw_data)
-        else: self._current_contract = None
-        self._transactions = self.parse_transactions(self._raw_data)
         self._career_earnings = self.parse_career_earnings(self._raw_data)
-        self._future_career_earnings = self.parse_future_career_earnings(self._raw_data)
+        if self._current:
+            self._current_contract = Contract(self._raw_data)
+            self._future_career_earnings = self.parse_future_career_earnings(self._raw_data)
+        else:
+            self._current_contract = None
+            self._future_career_earnings = self._career_earnings
+        self._transactions = self.parse_transactions(self._raw_data)
 
-    def build_url(self, team: str, player_id: str) -> str:
+    def build_url(self, team: str, name: str) -> str:
         """
         Builds the url from which we will retrieve player data.
         """
-        return f'{BASE_URL}{TEAMS[team.lower()]["slug"]}/{player_id}/'
+        if team.lower() not in TEAMS.keys():
+            raise InvalidTeamException()
+        else:
+            name_split = name.split()
+            name_slug = name_split[0]
+            for i in range(1, len(name_split)):
+                name_slug += '-' + name_split[i]
+
+            return f'{BASE_URL}{TEAMS[team.lower()]["slug"]}/{name_slug}/'
     
     def fetch_html(self, url: str) -> BeautifulSoup:
         """
@@ -55,6 +66,7 @@ class Player:
 
         response = requests.get(url)
         if response.status_code == 200: return BeautifulSoup(response.text, 'html.parser')
+        else: raise HTTPError()
     
     def parse_current(self, raw_data: BeautifulSoup) -> bool:
         """
@@ -65,11 +77,14 @@ class Player:
             if header.text == 'Current Contract': return True
         return False
     
-    def parse_name(self, raw_data: BeautifulSoup) -> str:
+    def parse_name(self, name, raw_data: BeautifulSoup) -> str:
         """
         Parses BeautifulSoup object and returns the player's name.
         """
-        return raw_data.find('h1').text
+        if raw_data.find('h1').text.lower()[:-1] != name.lower():
+            raise InvalidPlayerException(player = name)
+
+        return raw_data.find('h1').text[:-1]
 
     def parse_position(self, raw_data: BeautifulSoup) -> str:
         """
@@ -199,21 +214,21 @@ class Player:
         return self._drafted
 
     @property
-    def career_earnings(self):
+    def career_earnings(self) -> str:
         """
         Returns the player's career earnings as a ``string``.
         """
-        return self._raw_data.find('span', {'class': 'earningsvalue'}).text
+        return self._career_earnings
     
     @property
-    def career_earnings_int(self):
+    def career_earnings_int(self) -> int:
         """
         Returns the player's career earnings as an ``int``.
         """
         return self.dollars_to_int(self._career_earnings)
 
     @property
-    def future_career_earnings(self):
+    def future_career_earnings(self) -> str:
         """
         Returns what a player's career earnings will be at the end of their
         current contract as a ``string``.
@@ -221,12 +236,19 @@ class Player:
         return self._future_career_earnings
     
     @property
-    def future_career_earnings_int(self):
+    def future_career_earnings_int(self) -> int:
         """
         Returns what a player's career earnings will be at the end of their
         current contract as an ``int``.
         """
         return self.dollars_to_int(self._future_career_earnings)
+
+    @property
+    def transactions(self):
+        """
+        Returns a list of Transaction objects associated with the player
+        """
+        return self._transactions
 
     def avg_salary(self, string = True):
         """
@@ -254,7 +276,13 @@ class Player:
         
         Returns:
             Player's base salary in a given season either as a ``string`` or an ``int``.
+
+        Raises:
+            InvalidSeasonException: Season was not formatted properly
+
         """
+        self.validate_season(season)
+
         # first check current contract
         for contract_year in self._current_contract.contract_years:
             if season == contract_year._season:
@@ -270,6 +298,35 @@ class Player:
                     else: return self.dollars_to_int(data[3].text)
         
         # error handling if season not found
+    
+    def validate_season(self, season: str):
+        """
+        Ensures that season strings are formatted properly.
+        """
+        if '-' not in season: raise InvalidSeasonException(season)
+        season_split = season.split('-')
+        if len(season_split[0]) != 4 or len(season_split[1]) != 2: raise InvalidSeasonException(season)
+        if (int(season_split[0][2:4]) + 1) % 100 != int(season_split[1]):
+            raise InvalidSeasonException(season)
+
+
+    def get_transactions(self, years: list[int] = None) -> list[Transaction]:
+        """
+        Returns a list of Transaction objects associated with the player.
+
+        Args:
+            seasons (list[str]): A list of years (as ``int``s) to limit the query to.
+        
+        Returns:
+            A list of Transaction objects associated with the player in the
+            specified year range. Returns all historical transactions if 
+            year range is not specified.
+        """
+        if years == None: return self.transactions
+        transactions = []
+        for transaction in self.transactions:
+            if transaction.year_int in years: transactions.append(transaction)
+        return transactions
 
 
 
@@ -278,12 +335,29 @@ class Player:
         Converts a dollar amount (``string``) to an int
         """
         return int(amount.replace('$', '').replace(',', ''))
-        
+    
 
+    def __str__(self) -> str:
+        """
+        String representation of a Player object.
+        """
+        if self._current:
+            for contract_year in self._current_contract.contract_years:
+                if contract_year.current_year:
+                    season = contract_year.season
+                    current_salary = contract_year.base_salary
+            return f"""{self.name} ({self.position})
+Current team: {self.team}
+{season} salary: {current_salary}
+            """
+        else:
+            return f"""{self.name} ({self.position})
+Last played for: {self.team}
+Career earnings: {self.career_earnings}"""
 
 
 def main():
-    player = Player(team = 'nop', player_id = '31558')
+    player = Player(team = 'nop', name = 'Zion Williamson')
     print(player._name)
     print(player._position)
     print(player._age)
@@ -309,4 +383,7 @@ def main():
     print(player.base_salary('2020-21', True))
     print(player.base_salary('2020-21', False))
 
+
+    bum = Player('lebron james', 'lal')
+    print(bum.base_salary('2022-24'))
 if __name__ == '__main__': main()
