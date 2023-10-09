@@ -1,6 +1,6 @@
 import sys
 
-import spotrac_api.utils.exceptions as exceptions
+import spotrac_api.nba.exceptions as exceptions
 sys.modules['exceptions'] = exceptions
 
 import spotrac_api.nba.contract_year as contract_year

@@ -30,11 +30,11 @@ class Player:
         self._name = self.parse_name(name, self._raw_data)
         self._position = self.parse_position(self._raw_data)
         self._age = self.parse_age(self._raw_data)
-        self._team = TEAMS[team]['full_name']
+        self._team = self.parse_team(self._raw_data)
         self._experience = self.parse_experience(self._raw_data)
         self._drafted = self.parse_drafted(self._raw_data)
         self._college = self.parse_college(self._raw_data)
-        self._agents = self.parse_agents(self._raw_data)
+        self._agent = self.parse_agent(self._raw_data)
         self._career_earnings = self.parse_career_earnings(self._raw_data)
         if self._current:
             self._current_contract = Contract(self._raw_data)
@@ -96,31 +96,54 @@ class Player:
         """
         Parses BeautifulSoup object and returns the player's age in years and days. E.g. 23-90d
         """
-        return raw_data.find('span', {'class': 'player-infoitem'}).text.replace(' ', '')
+        for x in raw_data.find_all('span', {'class': 'player-item'}):
+            if 'Age:' in x.text:
+                return x.text.replace('Age: ', '').replace(' ', '')
+
+    def parse_team(self, raw_data: BeautifulSoup) -> str:
+        """
+        Parses BeautifulSoup object and returns the player's team, or latest team if no longer in the league.
+        """
+        return raw_data.find('meta', {'name': 'keywords'})['content'].split(', ')[1]
 
     def parse_experience(self, raw_data: BeautifulSoup) -> str:
         """
         Parses BeautifulSoup object and returns the player's years of experience.
         """
-        return raw_data.find_all('span', {'class': 'player-item'})[2].text.replace('Exp: ', '')
+        for x in raw_data.find_all('span', {'class': 'player-item'}):
+            if 'Exp: ' in x.text:
+                if x.text.replace('Exp: ', '')[0] == ' ': return '0 Years'
+                return x.text.replace('Exp: ', '')
 
     def parse_drafted(self, raw_data: BeautifulSoup) -> str:
         """
         Parses BeautifulSoup object and returns the player's draft information.
         """
-        return raw_data.find_all('span', {'class': 'player-item'})[3].text.replace('Drafted: ', '')
+        for x in raw_data.find_all('span', {'class': 'player-item'}):
+            if 'Drafted: ' in x.text:
+                return x.text.replace('Drafted: ', '')
+        return None
 
     def parse_college(self, raw_data: BeautifulSoup) -> str:
         """
         Parses BeautifulSoup object and returns the player's college.
         """
-        return raw_data.find_all('span', {'class': 'player-item'})[4].text.replace('College: ', '')
+        for x in raw_data.find_all('span', {'class': 'player-item'}):
+            if 'College: ' in x.text:
+                if x.text.replace('College: ', '') == '':
+                    return None
+                return x.text.replace('College: ', '')
+        return None
 
-    def parse_agents(self, raw_data: BeautifulSoup) -> str:
+    def parse_agent(self, raw_data: BeautifulSoup) -> str:
         """
         Parses BeautifulSoup object and returns the player's agent(s).
         """
-        return raw_data.find_all('span', {'class': 'player-item'})[5].text.replace('Agent(s): ', '')
+        for x in raw_data.find_all('span', {'class': 'player-item'}):
+            if 'Agent(s): ' in x.text:
+                if x.text.replace('Agent(s): ', '') == '': return None
+                return x.text.replace('Agent(s): ', '')
+        return None
 
     def parse_transactions(self, raw_data: BeautifulSoup) -> list[Transaction]:
         """
@@ -148,7 +171,9 @@ class Player:
         Parses BeautifulSoup object and returns what a player's career earnings will be
         at the end of their contract.
         """
-        return raw_data.find_all('span', {'class': 'earningsvalue'})[1].text
+        if len(raw_data.find_all('span', {'class': 'earningsvalue'})) > 1:
+            return raw_data.find_all('span', {'class': 'earningsvalue'})[1].text
+        return self._career_earnings
     
     @property
     def current(self) -> bool:
@@ -183,7 +208,8 @@ class Player:
         """
         Returns the player's age as an ``int``. E.g. 23
         """
-        return int(self._age[0:2])
+        if self.age is not None: return int(self._age[0:2])
+        return None
 
     @property
     def team(self) -> str:
@@ -205,6 +231,13 @@ class Player:
         Returns the player's years of experience as an ``int``. E.g. 4
         """
         return int(self._experience.split(' ')[0])
+    
+    @property
+    def college(self) -> int:
+        """
+        Returns the player's college, if any.
+        """
+        return self._college
     
     @property
     def drafted(self) -> str:
@@ -249,6 +282,13 @@ class Player:
         Returns a list of Transaction objects associated with the player
         """
         return self._transactions
+    
+    @property   
+    def agent(self):
+        """
+        Returns the player's agent(s), if any.
+        """
+        return self._agent
 
     def avg_salary(self, string = True):
         """
@@ -364,7 +404,7 @@ def main():
     print(player._experience)
     print(player._drafted)
     print(player._college)
-    print(player._agents)
+    print(player._agent)
     print(player._current_contract.avg_salary)
     for transaction in player._transactions:
         #print(transaction.full_date)
@@ -385,5 +425,17 @@ def main():
 
 
     bum = Player('lebron james', 'lal')
-    print(bum.base_salary('2022-24'))
+    print(bum.base_salary('2022-23'))
+
+    x = Player('Duop Reath')
+    print(x.agent)
+    print(x.college)
+
+    y = Player('Ben Wallace', 'det')
+    print(y.years_experience)
+    print(y.college)
+    print(y.agent)
+    print(y.age)
+    print(y.transactions)
+
 if __name__ == '__main__': main()

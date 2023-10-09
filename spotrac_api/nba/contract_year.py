@@ -8,7 +8,8 @@ class ContractYear:
         self._unlikely_incentives = unlikely_incentives
         self._current_year = current_year
         self._season = season
-        self._age = int(age)
+        if age is not None: self._age = int(age)
+        else: age = None
         self._option = option
         self._trade_bonus = trade_bonus
         self._cap_hit = cap_hit

@@ -30,15 +30,16 @@ class Contract:
             else: current_year = True
             entries = row.find_all('td')
             season = entries[0].text
-            age = entries[2].text
+            if entries[2].text == '': age = None
+            else: age = entries[2].text
             if entries[3].text == '': option = None
             else: option = entries[3].text
             base_salary = entries[4].text
-            if entries[5].text == '-': likely_incentives = '$0'
+            if entries[5].text == '-' or entries[5].text == '': likely_incentives = '$0'
             else: likely_incentives = entries[5].text
-            if entries[6].text == '-': unlikely_incentives = '$0'
+            if entries[6].text == '-' or entries[6].text == '': unlikely_incentives = '$0'
             else: unlikely_incentives = entries[6].text
-            if entries[7].text == '-': trade_bonus = '$0'
+            if entries[7].text == '-' or entries[7].text == '': trade_bonus = '$0'
             else: trade_bonus = entries[7].text
             cap_hit = entries[8].text
             pct_of_cap = entries[9].text
@@ -98,9 +99,10 @@ class Contract:
         Returns a list of notes about the contract from a BeautifulSoup object.
         """
         to_return = []
-        notes = contract_data.find('div', {'class': 'contract-details'}).find_all('li')
-        for note in notes:
-            to_return.append(note.text)
+        if len(contract_data.find_all('div', {'class': 'contract-details'})) != 0:
+            notes = contract_data.find('div', {'class': 'contract-details'}).find_all('li')
+            for note in notes:
+                to_return.append(note.text)
         return to_return
 
     @property
